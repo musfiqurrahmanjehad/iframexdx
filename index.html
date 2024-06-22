@@ -79,10 +79,10 @@
                 }
 
                 // Check the referrer to determine origin
-                const referrer = document.referrer;
-                if (!referrer || !referrer.startsWith(allowedDomain)) {
-                    throw new Error('Access Denied');
-                }
+                //const referrer = document.referrer;
+                //if (!referrer || !referrer.startsWith(allowedDomain)) {
+                    //throw new Error('Access Denied');
+                //}
             } catch (e) {
                 // Show the access denied message
                 document.getElementById('error-message').style.display = 'block';
