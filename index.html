@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dynamic iFrame Source</title>
     <style>
-        body,
-        html {
+        body, html {
             margin: 0;
             padding: 0;
             width: 100%;
@@ -19,116 +17,40 @@
             background-color: #f0f0f0;
             font-family: Arial, sans-serif;
         }
-
         iframe {
             width: 100%;
             height: 100vh;
             border: none;
-            display: none;
-            /* Initially hide the iframe */
-        }
-
-        .message {
-            display: none;
-            /* Initially hide the access message */
-            text-align: center;
-            max-width: 80%;
-            padding: 20px;
-            border: 2px solid #e74c3c;
-            border-radius: 8px;
-            background-color: #ffebee;
-        }
-
-        .access-denied {
-            color: #e74c3c;
-            font-weight: bold;
-            font-size: 2em;
-            margin-bottom: 10px;
-        }
-
-        .message p {
-            font-size: 1.2em;
-            color: #333;
         }
     </style>
 </head>
-
 <body>
     <iframe id="dynamic-iframe" src=""></iframe>
-    <div class="message" id="error-message">
-        <div class="access-denied">Access Denied</div>
-        <p>Sorry, you are not authorized to view this content.</p>
-    </div>
 
     <script>
-        // Allowed domain (modify as needed for your setup)
-        const allowedDomain = 'https://secv.pp.ua/';
-
         // Function to get the query parameter by name
         function getQueryParam(name) {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get(name);
         }
 
-        // Function to check if the page is accessed directly or embedded in an unauthorized domain
-        function checkAccess() {
-            try {
-                // Check if the page is not in an iframe
-                if (window.self === window.top) {
-                    throw new Error('Access Denied');
+        // Fetch the JSON data
+        fetch('_/_.json')
+            .then(response => response.json())
+            .then(data => {
+                // Get the id from the URL
+                const id = getQueryParam('id');
+                // Find the corresponding link from the JSON data
+                const linkObj = data.find(item => item.id === id);
+                if (linkObj) {
+                    // Set the iframe source to the found link
+                    document.getElementById('dynamic-iframe').src = linkObj.link;
+                } else {
+                    // Handle the case where the id is not found
+                    console.error('ID not found in the JSON data');
                 }
-
-                // Check the referrer to determine origin
-                //const referrer = document.referrer;
-                //if (!referrer || !referrer.startsWith(allowedDomain)) {
-                    //throw new Error('Access Denied');
-                //}
-            } catch (e) {
-                // Show the access denied message
-                document.getElementById('error-message').style.display = 'block';
-                console.error(e.message);
-                return false;
-            }
-            return true;
-        }
-
-        // Function to load the iframe content
-        function loadIframeContent() {
-            // Fetch the JSON data
-            fetch('_/_.json')
-                .then(response => response.json())
-                .then(data => {
-                    // Get the id from the URL
-                    const id = getQueryParam('id');
-                    // Find the corresponding link from the JSON data
-                    const linkObj = data.find(item => item.id === id);
-                    if (linkObj) {
-                        // Set the iframe source to the found link
-                        document.getElementById('dynamic-iframe').src = linkObj.link;
-                        // Show the iframe
-                        document.getElementById('dynamic-iframe').style.display = 'block';
-                    } else {
-                        // Handle the case where the id is not found
-                        document.getElementById('dynamic-iframe').style.display = 'none';
-                        // Show the access denied message
-                        document.getElementById('error-message').style.display = 'block';
-                        console.error('ID not found in the JSON data');
-                    }
-                })
-                .catch(error => {
-                    // Handle the error case
-                    document.getElementById('dynamic-iframe').style.display = 'none';
-                    // Show the access denied message
-                    document.getElementById('error-message').style.display = 'block';
-                    console.error('Error fetching the JSON data:', error);
-                });
-        }
-
-        // Run the access check and load content
-        if (checkAccess()) {
-            loadIframeContent();
-        }
+            })
+            .catch(error => console.error('Error fetching the JSON data:', error));
     </script>
 </body>
-
 </html>
